@@ -1,0 +1,31 @@
+SENSOR	->	pin P0.14 -> PINSEL0 (0xE002 C000) 29:28	EINT1 -> 1 0
+BUZZER	->	pin P1.25 -> PINSEL1 (0xE002 C004) 19:18	GPIO Port 0.25			
+Preguntar al sensor si alguien lo esta activando
+{
+	Cuando se active -> Activar el TIMER y el BUZZER
+	Acaba el TIMER -> apaga el BUZZER
+}
+	Si no se activa, sigue preguntando en el while(1)
+
+TIMER0
+T0TCR (0xE000 4001)
+
+#include <LPC21xx.H>
+
+__irq void T0isr(void);
+int main(void){
+PINSEL1 = 0xE002 C004;
+VPBDIV = 0x00000002;	//PCLK a 30 MHz (con cristal a 12 MHz)
+IODIR0 = 0x20000000;	//SENSOR		
+IODIR1 |= 0x00;		//BUZZER
+IOCLR1 |= 0X00;		//apagamos BUZZER
+
+T0PR = 0x0000001E;	//valor máximo preescaler counter
+T0TCR = 0x00000002;	//reset counter preescaler
+T0MCR = 0x00000003;	//cuando MATCH -> reset+irq
+T0MR0 = 0x00989680;	
+
+VICVectAddr4 = (unsigned)T0isr;	//VIC con la dirección de la interrupción del TIMER
+VICVectCntl4 = 
+
+}
